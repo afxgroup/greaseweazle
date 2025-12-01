@@ -20,4 +20,4 @@
 /build/
 /dist/
 /src/greaseweazle/__init__.py
-
+/cpp/build/
