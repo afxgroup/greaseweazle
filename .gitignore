@@ -21,3 +21,4 @@
 /dist/
 /src/greaseweazle/__init__.py
 /cpp/build/
+_codeql_detected_source_root
