@@ -182,6 +182,113 @@ The `examples/` directory contains:
 
 - `info.cpp` - Display device information
 - `read_track.cpp` - Read flux data from a track
+- `adf_read_write.cpp` - Read/write Amiga ADF disk images
+
+### ADF Read/Write Example
+
+The `adf_read_write` example provides a complete tool for reading and writing
+Amiga disk images (ADF files). It uses the `greaseweazle/amiga_adf.hpp` header
+which implements the MFM encoding/decoding for Amiga disks.
+
+```bash
+# Read a floppy disk to ADF file
+./gw_adf_read_write read mydisk.adf
+
+# Read a high-density disk
+./gw_adf_read_write read -h mydisk.adf
+
+# Write an ADF file to disk
+./gw_adf_read_write write mydisk.adf
+
+# Write without verification (faster but less safe)
+./gw_adf_read_write write -n mydisk.adf
+```
+
+#### Using the Amiga ADF Library in Your Code
+
+```cpp
+#include "greaseweazle.hpp"
+#include "greaseweazle/amiga_adf.hpp"
+
+using namespace greaseweazle;
+using namespace greaseweazle::amiga;
+
+int main() {
+    auto usb = GreaseweazleUnit::open();
+    if (!usb) {
+        std::cerr << "Device not found" << std::endl;
+        return 1;
+    }
+
+    // Read disk to ADF file (DiskToADF)
+    ADFResult result = disk_to_adf(*usb, "output.adf", false, 80, 
+        [](int track, DiskSurface side, int retry, 
+           int found, int bad, int total, CallbackOperation op) {
+            std::cout << "Track " << track << ": " << found << "/" << total << std::endl;
+            return WriteResponse::Continue;
+        });
+
+    if (result != ADFResult::Complete) {
+        std::cerr << "Error: " << adf_result_string(result) << std::endl;
+        return 1;
+    }
+
+    // Write ADF file to disk (ADFToDisk)
+    result = adf_to_disk(*usb, "input.adf", false, true,
+        [](int track, DiskSurface side, bool verifyError, CallbackOperation op) {
+            std::cout << "Track " << track << std::endl;
+            return WriteResponse::Continue;
+        });
+
+    return (result == ADFResult::Complete) ? 0 : 1;
+}
+```
+
+## Amiga ADF API Reference
+
+### `greaseweazle::amiga::disk_to_adf()`
+
+Read a floppy disk and save to ADF file.
+
+```cpp
+ADFResult disk_to_adf(
+    GreaseweazleUnit& usb,           // Greaseweazle device
+    const std::string& outputFile,   // Output ADF file path
+    bool isHD = false,               // High-density mode
+    unsigned int numTracks = 80,     // Number of tracks to read
+    ADFReadCallback callback = nullptr  // Progress callback
+);
+```
+
+### `greaseweazle::amiga::adf_to_disk()`
+
+Write an ADF file to a floppy disk.
+
+```cpp
+ADFResult adf_to_disk(
+    GreaseweazleUnit& usb,           // Greaseweazle device
+    const std::string& inputFile,    // Input ADF file path
+    bool isHD = false,               // High-density mode
+    bool verify = true,              // Verify after writing
+    ADFWriteCallback callback = nullptr  // Progress callback
+);
+```
+
+### `greaseweazle::amiga::ADFResult`
+
+```cpp
+enum class ADFResult {
+    Complete,                    // Operation completed successfully
+    CompletedWithErrors,         // Completed but with some errors
+    Aborted,                     // Operation was aborted
+    FileError,                   // Could not open file
+    FileIOError,                 // File I/O error
+    DriveError,                  // Drive communication error
+    DiskWriteProtected,          // Disk is write protected
+    MediaSizeMismatch,           // Wrong disk density
+    ExtendedADFNotSupported      // Extended ADF format not supported
+};
+```
 
 ## License
 
