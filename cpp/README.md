@@ -1,6 +1,6 @@
 # Greaseweazle C++ Library (libusb 0.1)
 
-C++ port of the Greaseweazle host tools using libusb 0.1 as the USB backend.
+C++ port of the Greaseweazle host tools using libusb 0.1 as the USB backend for AmigaOS4.
 
 ## Overview
 
@@ -21,7 +21,8 @@ disk controllers.
 
 - C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
 - CMake 3.14 or later
-- libusb 0.1 or libusb-compat-0.1
+- Clib4 installed (with SDK libraries)
+- libusb 0.1 or libusb-compat-0.1 for AmigaOS4
 
 ### Installing libusb 0.1
 
@@ -43,12 +44,15 @@ brew install libusb-compat
 **Windows:**
 Download libusb-win32 from https://libusb.info/
 
-## Building
+**AmigaOS4**
+Clone https://github.com/afxgroup/libusb and compile it
+
+## Building (for AmigaOS4)
 
 ```bash
 mkdir build
 cd build
-cmake ..
+cmake -DLIBUSB_INCLUDE_DIR=/usr/ppc-amigaos/SDK/local/common/include/ -DLIBUSB_LIBRARY=/usr/ppc-amigaos/SDK/local/clib4/lib/libusb.a  -DCMAKE_TOOLCHAIN_FILE=/usr/ppc-amigaos/bin/cmake.ppc-amigaos ..
 make
 ```
 
