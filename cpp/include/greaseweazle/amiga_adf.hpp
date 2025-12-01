@@ -21,6 +21,8 @@
 
 #include <cstdint>
 #include <cstring>
+#include <chrono>
+#include <thread>
 #include <fstream>
 #include <functional>
 #include <memory>
