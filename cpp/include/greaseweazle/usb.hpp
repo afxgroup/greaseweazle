@@ -23,6 +23,7 @@
 #include <chrono>
 #include <thread>
 
+#define __USE_INLINE__
 #include <usb.h>  // libusb 0.1
 
 #include "error.hpp"
@@ -249,9 +250,9 @@ public:
 };
 
 /**
- * @brief USB Unit class for Greaseweazle communication using libusb 0.1
+ * @brief USB GreaseweazleUnit class for Greaseweazle communication using libusb 0.1
  */
-class Unit {
+class GreaseweazleUnit {
 private:
     usb_dev_handle* dev_handle_;
     int endpoint_in_;
@@ -279,7 +280,7 @@ private:
         int total_written = 0;
         while (total_written < static_cast<int>(data.size())) {
             int ret = usb_bulk_write(dev_handle_, endpoint_out_,
-                                     reinterpret_cast<const char*>(data.data() + total_written),
+                                    (char *)(data.data() + total_written),
                                      data.size() - total_written, 5000);
             if (ret < 0) {
                 throw Fatal(std::string("USB write error: ") + usb_strerror());
@@ -292,7 +293,7 @@ private:
         int total_written = 0;
         while (total_written < static_cast<int>(len)) {
             int ret = usb_bulk_write(dev_handle_, endpoint_out_,
-                                     reinterpret_cast<const char*>(data + total_written),
+                                     (char *)(data + total_written),
                                      len - total_written, 5000);
             if (ret < 0) {
                 throw Fatal(std::string("USB write error: ") + usb_strerror());
@@ -485,13 +486,13 @@ public:
     bool update_needed;
 
     /**
-     * @brief Construct Unit from USB device handle
+     * @brief Construct GreaseweazleUnit from USB device handle
      * @param dev_handle libusb 0.1 device handle
      * @param endpoint_in Bulk IN endpoint
      * @param endpoint_out Bulk OUT endpoint
      * @param interface Interface number
      */
-    Unit(usb_dev_handle* dev_handle, int endpoint_in = 0x81, int endpoint_out = 0x02, int interface = 0)
+    GreaseweazleUnit(usb_dev_handle* dev_handle, int endpoint_in = 0x81, int endpoint_out = 0x02, int interface = 0)
         : dev_handle_(dev_handle)
         , endpoint_in_(endpoint_in)
         , endpoint_out_(endpoint_out)
@@ -535,7 +536,7 @@ public:
         update_needed = (version < EARLIEST_SUPPORTED_FIRMWARE);
     }
 
-    ~Unit() {
+    ~GreaseweazleUnit() {
         if (dev_handle_) {
             usb_release_interface(dev_handle_, interface_);
             usb_close(dev_handle_);
@@ -543,11 +544,11 @@ public:
     }
 
     // Prevent copying
-    Unit(const Unit&) = delete;
-    Unit& operator=(const Unit&) = delete;
+    GreaseweazleUnit(const GreaseweazleUnit&) = delete;
+    GreaseweazleUnit& operator=(const GreaseweazleUnit&) = delete;
 
     // Allow moving
-    Unit(Unit&& other) noexcept
+    GreaseweazleUnit(GreaseweazleUnit&& other) noexcept
         : dev_handle_(other.dev_handle_)
         , endpoint_in_(other.endpoint_in_)
         , endpoint_out_(other.endpoint_out_)
@@ -872,9 +873,9 @@ public:
 
     /**
      * @brief Find and open a Greaseweazle device
-     * @return Unique pointer to Unit, or nullptr if not found
+     * @return Unique pointer to GreaseweazleUnit, or nullptr if not found
      */
-    static std::unique_ptr<Unit> open() {
+    static std::unique_ptr<GreaseweazleUnit> open() {
         usb_init();
         usb_find_busses();
         usb_find_devices();
@@ -930,7 +931,7 @@ public:
                     }
 
                     try {
-                        return std::make_unique<Unit>(handle, endpoint_in, 
+                        return std::make_unique<GreaseweazleUnit>(handle, endpoint_in, 
                                                       endpoint_out, interface_num);
                     } catch (...) {
                         usb_release_interface(handle, interface_num);

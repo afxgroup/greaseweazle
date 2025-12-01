@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
 
     try {
-        auto usb = Unit::open();
+        auto usb = GreaseweazleUnit::open();
         
         if (!usb) {
             std::cout << "Device:" << std::endl;

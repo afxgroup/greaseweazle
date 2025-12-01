@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
               << ", " << revs << " revolutions" << std::endl;
 
     try {
-        auto usb = Unit::open();
+        auto usb = GreaseweazleUnit::open();
         
         if (!usb) {
             std::cerr << "Error: Greaseweazle device not found" << std::endl;
