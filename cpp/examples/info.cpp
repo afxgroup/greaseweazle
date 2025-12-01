@@ -28,7 +28,7 @@ const std::map<std::pair<int, int>, std::string> model_id = {
     {{7, 0}, "F7 v1"},
     {{7, 1}, "F7 Plus (Ant Goffart, v1)"},
     {{7, 2}, "F7 Lightning"},
-    {{7, 3}, "F7 v2)"},
+    {{7, 3}, "F7 v2"},
     {{7, 4}, "F7 Plus (Ant Goffart, v2)"},
     {{7, 5}, "F7 Lightning Plus"},
     {{7, 6}, "F7 Slim"},
